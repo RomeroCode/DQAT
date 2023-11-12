@@ -31,8 +31,11 @@ The "QualityTool" project is a comprehensive solution for data quality managemen
 - Python 3.x
 - Kafka broker running (localhost:9092)
 
+## Dataset
+The dataset used in this project was obtained from Kaggle: [Sensor-Based Aquaponics Fish Pond Datasets](https://www.kaggle.com/datasets/ogbuokiriblessing/sensor-based-aquaponics-fish-pond-datasets).
+
 ### Dataset Structure
-The dataset includes sensor readings for parameters such as temperature, turbidity, ammonia, nitrate, pH, dissolved oxygen (DO), and geographic coordinates. The data is stored in a CSV file located at `/home/marcos_romero/QualityTool/data/sensor_readings.csv`.
+The dataset includes sensor readings for parameters such as temperature, turbidity, ammonia, nitrate, pH, dissolved oxygen (DO), and geographic coordinates. The data is stored in a CSV file located at `QualityTool/data/sensor_readings.csv`.
 
 ## Academic Origin
 
