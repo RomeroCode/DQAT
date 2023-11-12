@@ -1,12 +1,26 @@
 import os
 import csv
 import time
-import threading
+import logging
+from concurrent.futures import ThreadPoolExecutor
 from kafka import KafkaProducer
+from dateutil import parser
+from datetime import datetime
+
+# Logging configuration
+log_directory = "../../monitoring/logs/"
+os.makedirs(log_directory, exist_ok=True)
+log_file_path = os.path.join(log_directory, "error_log.txt")
+log_format = '%(asctime)s - %(levelname)s - %(message)s'
+logging.basicConfig(filename=log_file_path, level=logging.ERROR, format=log_format, datefmt='%Y-%m-%d %H:%M:%S')
 
 # Kafka settings
 KAFKA_BROKER = 'localhost:9092'
 KAFKA_TOPIC = 'sensor_readings'
+
+# Logging function to record errors
+def log_error(message):
+    logging.error(message)
 
 # Function to read data from CSV and produce events to Kafka
 def produce_data(file_path):
@@ -17,65 +31,64 @@ def produce_data(file_path):
         previous_timestamp = None
 
         for row in reader:
-            current_timestamp = row['created_at']
-            
-            # Calculate time difference between events
-            if previous_timestamp:
-                time_difference = (
-                    time.mktime(time.strptime(current_timestamp, "%Y-%m-%d %H:%M:%S CET")) -
-                    time.mktime(time.strptime(previous_timestamp, "%Y-%m-%d %H:%M:%S CET"))
-                )
-                # Adjust the waiting time
-                time.sleep(time_difference)
+            try:
+                timestamp_str = row['created_at']
 
-            # Update previous timestamp
-            previous_timestamp = current_timestamp
+                # Parse timestamp in different formats
+                current_timestamp = parser.parse(timestamp_str)
 
-            # Get the filename without the extension
-            filename = os.path.splitext(os.path.basename(file_path))[0]
+                # Calculate time difference between events
+                if previous_timestamp:
+                    time_difference = (current_timestamp - previous_timestamp).total_seconds()
+                    # Adjust the waiting time
+                    time.sleep(time_difference)
 
-            # Adapt as necessary for the fields in your CSV
-            event_data = {
-                'filename' : filename,
-                'timestamp': current_timestamp,
-                'entry_id': row['entry_id'],
-                'temperature': float(row['Temperature (C)']),
-                'turbidity': float(row['Turbidity(NTU)']),
-                'ammonia': float(row['Ammonia(g/ml)']),
-                'nitrate': float(row['Nitrate(g/ml)']),
-                'ph': float(row['PH']),
-                'do': float(row['Dissolved Oxygen(g/ml)']),
-                'population': row['Population'],
-                'fish_length': float(row['Fish_Length(cm)']),
-                'fish_weight': float(row['Fish_Weight(g)'])
-            }
+                # Update previous timestamp
+                previous_timestamp = current_timestamp
 
-            # Convert the data to a string and produce to Kafka topic
-            message = str(event_data).encode('utf-8')
-            producer.send(KAFKA_TOPIC, message)
+                # Get the filename without the extension
+                filename = os.path.splitext(os.path.basename(file_path))[0]
 
-            print(f"Event produced: {event_data}")
+                # Dynamic header CSV
+                event_data = {'filename': filename, 'timestamp': current_timestamp.strftime("%Y-%m-%d %H:%M:%S")}
+                for key, value in row.items():
+                    if key != 'created_at':
+                        if (type(value) == str):
+                            cleaned_value = value.replace(',', '')
+                        
+                        # Try convert to float
+                            try:
+                                event_data[key] = float(cleaned_value)
+
+                            except ValueError:
+                                event_data[key] = cleaned_value
+                        
+                # Convert the data to a string and produce to Kafka topic
+                message = str(event_data).encode('utf-8')
+                producer.send(KAFKA_TOPIC, message)
+
+                print(f"Event produced: {event_data}")
+
+            except Exception as e:
+                error_message = f"Error processing the file {file_path}: {e}"
+                print(error_message)
+                log_error(error_message)
 
     producer.close()
 
-# Function to process each file in a separate thread
-def process_file(file_path):
-    print(f"Processing file: {file_path}")
-    produce_data(file_path)
-
-# Function to iterate over all files in a directory and start a thread for each file
+# Function to process each file using ThreadPoolExecutor
 def process_files(directory):
-    threads = []
-    for filename in os.listdir(directory):
-        if filename.endswith(".csv"):
-            file_path = os.path.join(directory, filename)
-            thread = threading.Thread(target=process_file, args=(file_path,))
-            threads.append(thread)
-            thread.start()
-
-    # Wait for all threads to finish
-    for thread in threads:
-        thread.join()
+    with ThreadPoolExecutor() as executor:
+        futures = {executor.submit(produce_data, os.path.join(directory, filename)): filename for filename in os.listdir(directory) if filename.endswith(".csv")}
+        #futures = executor.submit(produce_data, '../../data/IoTPond8.csv')
+        # Wait for all futures to complete
+        for future in futures:
+            try:
+                future.result()
+            except Exception as e:
+                error_message = f"Error processing the file {futures[future]}: {e}"
+                print(error_message)
+                log_error(error_message)
 
 # Example usage
 if __name__ == "__main__":

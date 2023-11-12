@@ -1,4 +1,4 @@
-created_at,entry_id,TEMPERATURE,TURBIDITY,DISOLVED OXYGEN,pH,AMMONIA,NITRATE,Population,Lenght,Weight
+created_at,entry_id,Temperature (C),Turbidity(NTU),Dissolved Oxygen(g/ml),PH,Ammonia(g/ml),Nitrate(g/ml),Population,Fish_Length(cm),Fish_Weight(g)
 2021-06-25 15:14:07 CET,1,27.0625,100,22.562,8.20213,12151.86328,1061,50,14.12,33.8
 2021-06-25 15:14:26 CET,2,27.125,100,20.493,8.19759,15100.59473,1050,50,14.12,33.8
 2021-06-25 15:15:42 CET,3,27.125,100,12.555,8.20213,42010.77344,1039,50,14.12,33.8
