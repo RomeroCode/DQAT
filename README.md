@@ -27,6 +27,13 @@ The "QualityTool" project is a comprehensive solution for data quality managemen
 3. Personalize settings and adapt adapters as needed.
 4. Monitor and review logs to ensure system integrity.
 
+### Prerequisites
+- Python 3.x
+- Kafka broker running (localhost:9092)
+
+### Dataset Structure
+The dataset includes sensor readings for parameters such as temperature, turbidity, ammonia, nitrate, pH, dissolved oxygen (DO), and geographic coordinates. The data is stored in a CSV file located at `/home/marcos_romero/QualityTool/data/sensor_readings.csv`.
+
 ## Academic Origin
 
 This project was created during the Master's program in Information Engineering at the Federal University of ABC (UFABC). It represents a culmination of academic research and practical implementation, addressing challenges in data quality management within IoT environments.
