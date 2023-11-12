@@ -1,8 +1,7 @@
-# data_producer.py
-
+import os
 import csv
 import time
-import random
+import threading
 from kafka import KafkaProducer
 
 # Kafka settings
@@ -15,23 +14,40 @@ def produce_data(file_path):
 
     with open(file_path, 'r') as file:
         reader = csv.DictReader(file)
-        for row in reader:
-            # Simulate a small delay to mimic real-time data
-            time.sleep(random.uniform(0.1, 0.5))
+        previous_timestamp = None
 
-            # Adapt as needed for the fields in your CSV
+        for row in reader:
+            current_timestamp = row['created_at']
+            
+            # Calculate time difference between events
+            if previous_timestamp:
+                time_difference = (
+                    time.mktime(time.strptime(current_timestamp, "%Y-%m-%d %H:%M:%S CET")) -
+                    time.mktime(time.strptime(previous_timestamp, "%Y-%m-%d %H:%M:%S CET"))
+                )
+                # Adjust the waiting time
+                time.sleep(time_difference)
+
+            # Update previous timestamp
+            previous_timestamp = current_timestamp
+
+            # Get the filename without the extension
+            filename = os.path.splitext(os.path.basename(file_path))[0]
+
+            # Adapt as necessary for the fields in your CSV
             event_data = {
-                'timestamp': row['created_at'],
-                'temperature': float(row['Temp']),
-                'turbidity': float(row['Turbidity']),
-                'ammonia': float(row['Ammonia']),
-                'nitrate': float(row['Nitrate']),
+                'filename' : filename,
+                'timestamp': current_timestamp,
+                'entry_id': row['entry_id'],
+                'temperature': float(row['Temperature (C)']),
+                'turbidity': float(row['Turbidity(NTU)']),
+                'ammonia': float(row['Ammonia(g/ml)']),
+                'nitrate': float(row['Nitrate(g/ml)']),
                 'ph': float(row['PH']),
-                'do': float(row['DO']),
-                'latitude': row['latitude'],
-                'longitude': row['longitude'],
-                'elevation': row['elevation'],
-                'status': row['status']
+                'do': float(row['Dissolved Oxygen(g/ml)']),
+                'population': row['Population'],
+                'fish_length': float(row['Fish_Length(cm)']),
+                'fish_weight': float(row['Fish_Weight(g)'])
             }
 
             # Convert the data to a string and produce to Kafka topic
@@ -42,7 +58,26 @@ def produce_data(file_path):
 
     producer.close()
 
+# Function to process each file in a separate thread
+def process_file(file_path):
+    print(f"Processing file: {file_path}")
+    produce_data(file_path)
+
+# Function to iterate over all files in a directory and start a thread for each file
+def process_files(directory):
+    threads = []
+    for filename in os.listdir(directory):
+        if filename.endswith(".csv"):
+            file_path = os.path.join(directory, filename)
+            thread = threading.Thread(target=process_file, args=(file_path,))
+            threads.append(thread)
+            thread.start()
+
+    # Wait for all threads to finish
+    for thread in threads:
+        thread.join()
+
 # Example usage
 if __name__ == "__main__":
-    file_path = "/home/marcos_romero/QualityTool/data/IoTPond1.csv"
-    produce_data(file_path)
+    data_directory = "../../data"
+    process_files(data_directory)
