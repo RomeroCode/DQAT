@@ -2,24 +2,16 @@ import os
 import csv
 import signal
 import time
-import logging
 import sys
 from concurrent.futures import ThreadPoolExecutor
-from kafka import KafkaProducer
 from dateutil import parser
-from datetime import datetime
+from integration.connectors import kafka_producer
+from config import kafka_config
+from integration.adapters import log_setup
 
 
 # Logging configuration
-log_directory = "../../monitoring/logs/"
-os.makedirs(log_directory, exist_ok=True)
-log_file_path = os.path.join(log_directory, "error.log")
-log_format = '%(asctime)s - %(levelname)s - %(message)s'
-logging.basicConfig(filename=log_file_path, level=logging.ERROR, format=log_format, datefmt='%Y-%m-%d %H:%M:%S')
-
-# Kafka settings
-KAFKA_BROKER = 'localhost:9092'
-KAFKA_TOPIC = 'sensor_readings'
+logging = log_setup.setup_logger('producer', 'producer_errors.log', 3)
 
 # Flag to control execution state
 shutdown_requested = False
@@ -39,7 +31,7 @@ def log_error(message):
 
 # Function to read data from CSV and produce events to Kafka
 def produce_data(file_path):
-    producer = KafkaProducer(bootstrap_servers=KAFKA_BROKER)
+    producer = kafka_producer.get_kafka_producer(broker_url=kafka_config.KAFKA_BROKER)
     global shutdown_requested
 
     with open(file_path, 'r') as file:
@@ -67,7 +59,7 @@ def produce_data(file_path):
                 if shutdown_requested:
                     # Send message to Kafka before stops
                     shutdown_message = "Processing was stopped for: " + file_path
-                    producer.send(KAFKA_TOPIC, shutdown_message.encode('utf-8'))
+                    producer.send(kafka_config.KAFKA_SENSOR_READINGS_TOPIC, shutdown_message.encode('utf-8'))
                     print(shutdown_message)
                     return
                 
@@ -93,7 +85,7 @@ def produce_data(file_path):
                         
                 # Convert the data to a string and produce to Kafka topic
                 message = str(event_data).encode('utf-8')
-                producer.send(KAFKA_TOPIC, message)
+                producer.send(kafka_config.KAFKA_SENSOR_READINGS_TOPIC, message)
 
                 print(f"Event produced: {event_data}")
                 
