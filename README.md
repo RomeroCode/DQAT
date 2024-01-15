@@ -20,6 +20,10 @@ The "QualityTool" project is a comprehensive solution for data quality managemen
 
 7. **Centralized Configuration:** A configuration module enables easy adjustment of project settings to meet specific environment needs.
 
+## Layers' Diagram
+
+![Layers' Diagram](https://github.com/RomeroCode/QualityTool/blob/main/diagrama.png)
+
 ## Usage Instructions
 
 1. Clone the repository.
