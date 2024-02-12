@@ -8,7 +8,7 @@ def process_all_sensors(base_directory):
     with ThreadPoolExecutor() as executor:
         
         # Submit the header processor task once for all directories
-        executor.submit(header_processor.consume_messages)
+        executor.submit(header_processor.process_messages)
 
         # Create a list to hold all the future objects
         futures = []
@@ -36,5 +36,5 @@ def process_all_sensors(base_directory):
 
 # Example usage
 if __name__ == "__main__":
-    base_data_directory = "data/sensors"  # Path to the base directory where sensor data are stored
-    process_all_sensors(base_data_directory)
+    BASE_DATA_DIRECTORY = "data/sensors"  # Path to the base directory where sensor data are stored
+    process_all_sensors(BASE_DATA_DIRECTORY)
