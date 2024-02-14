@@ -21,12 +21,12 @@ def check_headers(data, expected_headers, producer):
     # Normalizes headers
     normalized_received = {header.replace(" ", "").lower(): value for header, value in data.items()}
     if all(header in normalized_received.keys() for header in expected_headers):
-        producer.send(kafka_config.KAFKA_SENSOR_HEADERS_OK, str(normalized_received).encode('utf-8'))
+        producer.send(kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED, str(normalized_received).encode('utf-8'))
         return True
     else:
         missing = [header for header in expected_headers if header not in normalized_received.keys()] 
         normalized_received["missing headers"] = missing
-        producer.send(kafka_config.KAFKA_SENSOR_MISSING_HEADERS, str(normalized_received).encode('utf-8'))
+        producer.send(kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED, str(normalized_received).encode('utf-8'))
         raise ValueError(f"Data is missing headers: {missing}")
         
 
@@ -72,16 +72,17 @@ def process_messages():
                     log_error(error_message)
                 except ValueError:
                     pass                   
-        except KeyboardInterrupt:
-            print("Consumer inturrupted by user.")
+                except KeyboardInterrupt:
+                    print("Consumer inturrupted by user.")
         except Exception as e:
             error_message= f"An error occurred trying to consume topic: {e}"
             print(error_message)
             log_error(error_message)
         finally:
+            producer.close()
             consumer.close()
 
-# Run the consumer process
+# Run the processor
 if __name__ == "__main__":
     process_messages()
     

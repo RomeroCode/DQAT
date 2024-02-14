@@ -3,12 +3,14 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from events.producers import data_producer
 from events.processors import header_processor
+from persistence import load_influxdb
 
 def process_all_sensors(base_directory):
     with ThreadPoolExecutor() as executor:
         
         # Submit the header processor task once for all directories
         executor.submit(header_processor.process_messages)
+        executor.submit(load_influxdb.write_to_db)
 
         # Create a list to hold all the future objects
         futures = []
