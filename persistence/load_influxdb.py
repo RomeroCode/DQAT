@@ -46,7 +46,7 @@ def write_to_db(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
                     
                         
                     for key, value in data.items():
-                        print(f'Key: {key} {type(key)}, Value: {value} {type(value)}')
+                        #print(f'Key: {key} {type(key)}, Value: {value} {type(value)}')
                         if key not in ['filename', 'timestamp']:
                             if key is '':
                                 continue
@@ -55,7 +55,7 @@ def write_to_db(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
                             else:
                                 point = point.field(key, value)
 
-                    print(f"Data write: {point}")
+                    #print(f"Data write: {point}")
                     
                     writer.write(bucket=influx_config.INFLUXDB_BUCKET,org=influx_config.INFLUXDB_ORG,
                                  record=point)
@@ -74,9 +74,35 @@ def write_to_db(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
             log_error(error_message)
         finally:
             consumer.close()
+
+
+def write_profiling(stats_dict, filename):
+    try:
+        writer = influx_connector.get_influx_writer(url=influx_config.INFLUXDB_URL,
+                                                                token=influx_config.INFLUXDB_TOKEN,
+                                                                org=influx_config.INFLUXDB_ORG)
                     
-                    
-    
+        #Formating data to write into InfluxDB and adjust timestamp to now
+        for parameter, stats in stats_dict.items():
+            point = (Point("Data Profiling")
+                    .tag("filename", filename)
+                    .tag("parameter", parameter)
+                    .field("maximum", stats.get("maximum").get())
+                    .field("minimum", stats.get("minimum").get())
+                    .field("mode", stats.get("mode").get())
+                    .field("peak_to_peak", stats.get("peak_to_peak").get())
+                    .field("median", stats.get("median").get())
+                    .field("first_quartile", stats.get("first_quartile").get())
+                    .field("mean", stats.get("mean").get())
+                    .field("variance", stats.get("variance").get())
+                    .time(int(datetime.now().timestamp() *1e9), WritePrecision.NS)
+                )
+            writer.write(bucket=influx_config.INFLUXDB_BUCKET,org=influx_config.INFLUXDB_ORG,
+                                 record=point)
+            writer.close()
+    except Exception as e:
+        error_message= f"Error writing in the DB: {stats_dict} because of {e}"
+        log_error(error_message)                  
 
 # Run the processor
 if __name__ == "__main__":

@@ -8,3 +8,4 @@ KAFKA_SENSOR_HEADERS_NORMALIZED = 'sensor_headers_normalized'
 
 # Kafka Consumer Group
 KAFKA_CONSUMER_GROUP = 'data_processor_group'
+KAFKA_DATA_PROFILING_GROUP = 'data_profiling_group'
