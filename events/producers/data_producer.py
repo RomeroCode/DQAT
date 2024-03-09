@@ -49,7 +49,7 @@ def produce_data(file_path):
 
                 # Calculate time difference between events
                 if previous_timestamp:
-                    time_difference = (current_timestamp - previous_timestamp).total_seconds()
+                    time_difference = ((current_timestamp - previous_timestamp).total_seconds())/10
                     # Adjust the waiting time
                     sleep_time = 0
                     while sleep_time < time_difference and not shutdown_requested:

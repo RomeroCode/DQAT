@@ -15,7 +15,7 @@ def log_error(message):
     logging.error(message)
 
 
-def create_stats(expected_headers, WINDOW_SIZE=10):
+def create_stats(expected_headers, WINDOW_SIZE=50):
     stats_dict = {}
     for header in expected_headers:
         stats_dict[header] ={
