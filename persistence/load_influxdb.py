@@ -41,14 +41,13 @@ def write_to_db(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
                     
                     #Formating data to write into InfluxDB and adjust timestamp to now
                     point = Point("IoT").tag("filename", 
-                                            data['filename']).time(int(datetime.now().timestamp() *1e9), 
-                                            WritePrecision.NS)
+                                            data['filename']).time(data['timestamp'],WritePrecision.NS)
                     
                         
                     for key, value in data.items():
                         #print(f'Key: {key} {type(key)}, Value: {value} {type(value)}')
                         if key not in ['filename', 'timestamp']:
-                            if key is '':
+                            if key == '':
                                 continue
                             elif key in 'missing headers':
                                 point = point.field(key, ','.join(value))
@@ -76,7 +75,7 @@ def write_to_db(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
             consumer.close()
 
 
-def write_profiling(stats_dict, filename):
+def write_profiling(stats_dict, filename, timestamp):
     try:
         writer = influx_connector.get_influx_writer(url=influx_config.INFLUXDB_URL,
                                                                 token=influx_config.INFLUXDB_TOKEN,
@@ -95,7 +94,7 @@ def write_profiling(stats_dict, filename):
                     .field("first_quartile", stats.get("first_quartile").get())
                     .field("mean", stats.get("mean").get())
                     .field("variance", stats.get("variance").get())
-                    .time(int(datetime.now().timestamp() *1e9), WritePrecision.NS)
+                    .time(timestamp, WritePrecision.NS)
                 )
             writer.write(bucket=influx_config.INFLUXDB_BUCKET,org=influx_config.INFLUXDB_ORG,
                                  record=point)
@@ -103,6 +102,33 @@ def write_profiling(stats_dict, filename):
     except Exception as e:
         error_message= f"Error writing in the DB: {stats_dict} because of {e}"
         log_error(error_message)                  
+
+def write_anomaly(data, score):
+    try:
+        writer = influx_connector.get_influx_writer(url=influx_config.INFLUXDB_URL,
+                                                    token=influx_config.INFLUXDB_TOKEN,
+                                                    org=influx_config.INFLUXDB_ORG)
+        point = Point("Anomaly").tag("filename", 
+                    data['filename']).time(data['timestamp'], 
+                    WritePrecision.NS)
+        
+        for key, value in data.items():
+            if key not in ['filename', 'timestamp']:
+                if key == '':
+                    continue
+                elif key in 'missing headers':
+                    point = point.field(key, ','.join(value))
+                else:
+                    point = point.field(key, value)
+        point = point.field("score", score)
+        point = point.tag("score", score)
+        writer.write(bucket=influx_config.INFLUXDB_BUCKET,org=influx_config.INFLUXDB_ORG,
+                    record=point)
+        writer.close()
+                                
+    except Exception as e:
+        error_message= f"Error writing in the DB: {data} because of {e}"
+        log_error(error_message)       
 
 # Run the processor
 if __name__ == "__main__":

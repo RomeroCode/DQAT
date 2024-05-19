@@ -2,17 +2,19 @@ import os
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from events.producers import data_producer
-from events.processors import header_processor, data_profiling
+from events.processors import anomalyHST, header_processor, data_profiling
 from persistence import load_influxdb
 
 
+
 def process_all_sensors(base_directory):
-    with ThreadPoolExecutor() as executor:
+    with ThreadPoolExecutor(max_workers=20) as executor:
         
         # Submit the header processor task once for all directories
         executor.submit(header_processor.process_messages)
         executor.submit(load_influxdb.write_to_db)
         executor.submit(data_profiling.evaluate)
+        executor.submit(anomalyHST.evaluate)
 
         # Create a list to hold all the future objects
         futures = []
@@ -28,9 +30,9 @@ def process_all_sensors(base_directory):
                 # Submit the processing task for each sensor directory
                 future = executor.submit(data_producer.process_files, sensor_directory)
                 futures.append(future)
-
+        
         try:
-            # Wait for all submitted tasks to complete
+            # Wait for all submitted tasks to complete                
             for future in as_completed(futures):
                 future.result()
         except KeyboardInterrupt:

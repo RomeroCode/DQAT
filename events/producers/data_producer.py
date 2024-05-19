@@ -3,6 +3,7 @@ import csv
 import signal
 import time
 import sys
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
 from dateutil import parser
 from integration.connectors import kafka_producer
@@ -20,7 +21,7 @@ shutdown_requested = False
 def signal_handler(signum, frame):
     global shutdown_requested
     shutdown_requested = True
-    print("Shutdown signal received.")
+    print(f"Shutdown signal received for "+os.path.basename(__file__)+".")
     
 # Configure handler to signal SIGINT (Ctrl+C)
 signal.signal(signal.SIGINT, signal_handler)
@@ -61,8 +62,8 @@ def produce_data(file_path):
                     shutdown_message = "Processing was stopped for: " + file_path
                     producer.send(kafka_config.KAFKA_SENSOR_READINGS_TOPIC, shutdown_message.encode('utf-8'))
                     print(shutdown_message)
-                    return
-                
+                    sys.exit(1)
+                                    
                 # Update previous timestamp
                 previous_timestamp = current_timestamp
 
@@ -70,7 +71,7 @@ def produce_data(file_path):
                 filename = os.path.splitext(os.path.basename(file_path))[0]
 
                 # Dynamic header CSV
-                event_data = {'filename': filename, 'timestamp': current_timestamp.strftime("%Y-%m-%d %H:%M:%S")}
+                event_data = {'filename': filename, 'timestamp': int(datetime.now().timestamp() *1e9)}
                 for key, value in row.items():
                     if key != 'created_at':
                         if (type(value) == str):
@@ -87,7 +88,7 @@ def produce_data(file_path):
                 message = str(event_data).encode('utf-8')
                 producer.send(kafka_config.KAFKA_SENSOR_READINGS_TOPIC, message)
 
-                print(f"Event produced: {event_data}")
+                #print(f"Event produced: {event_data}")
                 
                 
 
@@ -102,7 +103,7 @@ def produce_data(file_path):
 def process_files(directory):
     with ThreadPoolExecutor() as executor:
         futures = {executor.submit(produce_data, os.path.join(directory, filename)): filename for filename in os.listdir(directory) if filename.endswith(".csv")}
-        #futures = executor.submit(produce_data, '../../data/IoTPond8.csv')
+
         # Wait for all futures to complete
         for future in futures:
             try:

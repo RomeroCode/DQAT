@@ -54,13 +54,14 @@ def evaluate(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
                     continue
                 else:
                     filename = data.get("filename")
+                    timestamp = data.get("timestamp")
                     if filename not in total_stats_dict:
                         total_stats_dict[filename] = create_stats(app_config.NUMERIC_HEADERS)
                     for parameter, value in data.items():
                         if parameter in total_stats_dict[filename]:
                             for _, stat_function in total_stats_dict[filename][parameter].items():
                                 stat_function.update(value)
-                            load_influxdb.write_profiling(total_stats_dict[filename], filename)
+                            load_influxdb.write_profiling(total_stats_dict[filename], filename, timestamp)
         except KeyboardInterrupt:
                     print("Consumer inturrupted by user.")
                     raise

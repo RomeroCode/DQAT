@@ -38,10 +38,10 @@ def process_message(data, producer):
     # Verify if the data contains all expected headers
     try:
         check_headers(data, app_config.EXPECTED_HEADERS, producer)
-        print(f"Data is valid and processing can proceed: {data}")
+        #print(f"Data is valid and processing can proceed: {data}")
         return True
     except ValueError as data_missing:
-        print(f"{data_missing} in file {data.get('filename')}")
+        #print(f"{data_missing} in file {data.get('filename')}")
         log_error(f"{data_missing} in file {data.get('filename')}")
          
 
@@ -74,6 +74,7 @@ def process_messages():
                     pass                   
                 except KeyboardInterrupt:
                     print("Consumer inturrupted by user.")
+                                    
         except Exception as e:
             error_message= f"An error occurred trying to consume topic: {e}"
             print(error_message)
