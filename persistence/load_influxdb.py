@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 from config import influx_config
 from config import kafka_config
 from integration.connectors import influx_connector

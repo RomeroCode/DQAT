@@ -1,3 +1,4 @@
+"""Module for Kafka configuration"""
 
 # Kafka Broker Configuration
 KAFKA_BROKER = 'localhost:9092'
