@@ -21,6 +21,7 @@ jobs:
         pip install river
         pip install numpy
         pip install influxdb_client
+        pip install kafka
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
