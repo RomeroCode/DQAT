@@ -57,11 +57,21 @@ def evaluate(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
         broker_url=kafka_config.KAFKA_BROKER,
         group_id=kafka_config.KAFKA_ANOMALY_GROUP
     )
-
-    model = anomaly.HalfSpaceTrees(seed=42,window_size=100)
-    scaler = preprocessing.MinMaxScaler()
-
-    scores = []
+    
+    scores_hst = []
+    scores_svm = []
+    model_hst = anomaly.HalfSpaceTrees(seed=42,window_size=50)
+    scaler_minmax = preprocessing.MinMaxScaler()
+    model_svm = anomaly.OneClassSVM(nu=0.1)
+    scaler_standard = preprocessing.StandardScaler()
+    
+    #helping function for anomaly detector
+    def _anomaly_evaluate(model, scaler, data, scores):
+        x_scaled = scaler.learn_one(data).transform_one(data)
+        score = model.score_one(x_scaled)  # Anomaly Score
+        scores.append(score)
+        model.learn_one(x_scaled)
+        return model, scaler, score, scores
 
     try:
         for message in consumer:
@@ -89,17 +99,27 @@ def evaluate(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
             filtered_data = {col: data[col] for col in float_columns}
 
             #print(filtered_data)
-            # Calcular pontuação de anomalia e atualizar modelo
-            x_scaled = scaler.learn_one(filtered_data).transform_one(filtered_data)
-            score = model.score_one(x_scaled)  # Pontuação de anomalia
-            scores.append(score)
-            model.learn_one(x_scaled)
+            
+            model_hst, scaler_minmax, score_hst, scores_hst = _anomaly_evaluate(model_hst,
+                                                                                scaler_minmax,
+                                                                                filtered_data,
+                                                                                scores_hst)
+            model_svm, scaler_standard, score_svm, scores_svm = _anomaly_evaluate(model_svm,
+                                                                                  scaler_standard,
+                                                                                  filtered_data,
+                                                                                  scores_svm)
 
+            #print(score_hst, scores_hst)
             # Calcular limiar dinâmico e verificar anomalia
-            threshold = np.percentile(scores, 95) if scores else 0
-            if score > threshold:
-                print(f"Anomalia detectada: {data}, score: {score}")
-                load_influxdb.write_anomaly(data, score)
+            threshold_hst = np.percentile(scores_hst, 95) if scores_hst else 0
+            if score_hst > threshold_hst:
+                print(f"Anomaly HST detected: {data}, score: {score_hst}")
+                load_influxdb.write_anomaly(data, score_hst, method="HST")
+
+            
+            if score_svm > 0.1:
+                print(f"Anomaly SVM detected: {data}, score: {score_svm}")
+                load_influxdb.write_anomaly(data, score_svm, method="SVM")
 
 
     except KeyboardInterrupt:

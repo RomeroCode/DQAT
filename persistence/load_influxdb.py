@@ -102,7 +102,7 @@ def write_profiling(stats_dict, filename, timestamp):
         error_message= f"Error writing in the DB: {stats_dict} because of {e}"
         log_error(error_message)                  
 
-def write_anomaly(data, score):
+def write_anomaly(data, score, method):
     try:
         writer = influx_connector.get_influx_writer(url=influx_config.INFLUXDB_URL,
                                                     token=influx_config.INFLUXDB_TOKEN,
@@ -121,6 +121,7 @@ def write_anomaly(data, score):
                     point = point.field(key, value)
         point = point.field("score", score)
         point = point.tag("score", score)
+        point = point.tag("method", method)
         writer.write(bucket=influx_config.INFLUXDB_BUCKET,org=influx_config.INFLUXDB_ORG,
                     record=point)
         writer.close()
