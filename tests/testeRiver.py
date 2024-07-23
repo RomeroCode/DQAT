@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from river import stream, preprocessing, anomaly, compose
+from river import stream, preprocessing, anomaly, compose, feature_extraction
 import os
 
 class Data:
@@ -42,7 +42,7 @@ def get_data(self, data_file):
     
 def evaluate(model, window_size):
     data = Data("data")
-    X_all, y_all = get_data(data,"cardio.mat")
+    X_all, y_all = get_data(data,"arrhythmia.mat")
     data_stream = stream.iter_array(X_all,y_all)
     
     if model == 'HST':
@@ -53,8 +53,15 @@ def evaluate(model, window_size):
     if model == 'SVM':
         model = compose.Pipeline(
             preprocessing.StandardScaler(),
-            anomaly.OneClassSVM(nu=window_size)
+            anomaly.OneClassSVM(nu=1)
         )
+        train = 0
+        for X, y in data_stream:
+            if train < window_size:
+                model.learn_one(X)
+                train = train + 1
+            else:
+                break
     
     if model == 'LOF':
         model = anomaly.LocalOutlierFactor(n_neighbors=30)
@@ -74,11 +81,11 @@ def evaluate(model, window_size):
     
     # Iterate over examples.
     for X, y in data_stream:
-        score = model.score_one(X)
         
-        if model != 'LOF':
+        
+        if model != 'LOF' or 'SVM':
             model.learn_one(X)
-        
+        score = model.score_one(X)
         scores.append(score)
         
         # Dynamicly build the threshold
@@ -123,6 +130,6 @@ def evaluate(model, window_size):
     return tp, fn, fp, tn    
         
 if __name__ == '__main__':
-    tp, fn, fp, tn = evaluate('HST',1600)
+    tp, fn, fp, tn = evaluate('SVM',4)
     print(f'TP: {tp}, FN: {fn}')
     print(f'FP: {fp}, TN: {tn}')
