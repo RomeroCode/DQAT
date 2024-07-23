@@ -60,9 +60,9 @@ def evaluate(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
     
     scores_hst = []
     scores_svm = []
-    model_hst = anomaly.HalfSpaceTrees(seed=42,window_size=10)
+    model_hst = anomaly.HalfSpaceTrees(seed=42,window_size=100)
     scaler_minmax = preprocessing.MinMaxScaler()
-    model_svm = anomaly.OneClassSVM(nu=0.03)
+    model_svm = anomaly.OneClassSVM(nu=4)
     scaler_standard = preprocessing.StandardScaler()
     
     #helping function for anomaly detector
@@ -72,7 +72,7 @@ def evaluate(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
         scores.append(score)
         model.learn_one(x_scaled)
         return model, scaler, score, scores
-
+    
     try:
         for message in consumer:
             message_value = message.value.decode('utf-8').strip()
@@ -116,8 +116,8 @@ def evaluate(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
                 print(f"Anomaly HST detected: {data}, score: {score_hst}")
                 load_influxdb.write_anomaly(data, score_hst, method="HST")
 
-            
-            if score_svm > 0.1:
+            threshold_svm = np.percentile(scores_svm, 95)
+            if score_svm > threshold_svm:
                 print(f"Anomaly SVM detected: {data}, score: {score_svm}")
                 load_influxdb.write_anomaly(data, score_svm, method="SVM")
 

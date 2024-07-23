@@ -2,8 +2,8 @@
 
 INFLUXDB_URL = 'http://localhost:8086'
 INFLUXDB_ORG = 'ufabc'
-#INFLUXDB_BUCKET = 'IoT'
-INFLUXDB_BUCKET = 'AI4I'
+INFLUXDB_BUCKET = 'IoT'
+#INFLUXDB_BUCKET = 'AI4I'
 
 try:
     with open('config/secrets/.TOKEN_INFLUX', 'r', encoding="UTF-8") as file:
