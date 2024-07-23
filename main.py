@@ -64,5 +64,5 @@ def process_all_sensors(base_directory):
 
 
 if __name__ == "__main__":
-    BASE_DATA_DIRECTORY = "data/sensors"  # Path to the base directory where sensor data are stored
+    BASE_DATA_DIRECTORY = "data/ai4i"  # Path to the base directory where sensor data are stored
     process_all_sensors(BASE_DATA_DIRECTORY)

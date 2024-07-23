@@ -86,8 +86,8 @@ def produce_data(file_path):
                     # Adjust the waiting time
                     sleep_time = 0
                     while sleep_time < time_difference and not SHUTDOWN_REQUESTED:
-                        time.sleep(min(0.1, time_difference - sleep_time))
-                        sleep_time += 0.1
+                        time.sleep(min(0.01, time_difference - sleep_time))
+                        sleep_time += 0.01
 
                 if SHUTDOWN_REQUESTED:
                     # Send message to Kafka before stops

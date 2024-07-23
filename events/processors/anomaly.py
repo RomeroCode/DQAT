@@ -60,9 +60,9 @@ def evaluate(topic_name=kafka_config.KAFKA_SENSOR_HEADERS_NORMALIZED):
     
     scores_hst = []
     scores_svm = []
-    model_hst = anomaly.HalfSpaceTrees(seed=42,window_size=50)
+    model_hst = anomaly.HalfSpaceTrees(seed=42,window_size=10)
     scaler_minmax = preprocessing.MinMaxScaler()
-    model_svm = anomaly.OneClassSVM(nu=0.1)
+    model_svm = anomaly.OneClassSVM(nu=0.03)
     scaler_standard = preprocessing.StandardScaler()
     
     #helping function for anomaly detector
