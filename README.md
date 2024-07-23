@@ -22,7 +22,7 @@ The "QualityTool" project is a comprehensive solution for data quality managemen
 
 ## Layers' Diagram
 
-![Layers' Diagram](https://github.com/RomeroCode/QualityTool/blob/main/diagrama.png)
+![Layers' Diagram](https://github.com/RomeroCode/QualityTool/blob/main/diagrama.svg)
 
 ## Usage Instructions
 
