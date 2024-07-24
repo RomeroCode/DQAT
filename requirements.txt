@@ -67,7 +67,7 @@ python-slugify==8.0.1
 pytz==2024.1
 PyYAML==5.3.1
 reactivex==4.0.4
-requests==2.22.0
+requests==2.32.2
 requests-unixsocket==0.2.0
 river==0.19.0
 scipy==1.10.1
