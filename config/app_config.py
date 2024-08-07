@@ -10,9 +10,10 @@ NUMERIC_HEADERS = ['temperature(c)', 'turbidity(ntu)', 'dissolvedoxygen(g/ml)', 
 NON_NUMERIC_HEADERS = ['filename', 'timestamp', 'entry_id', 'date', 'missing headers']
 
 """
-EXPECTED_HEADERS = ['udi', 'productid', 'type', 'air_temp', 'process_temp',
+EXPECTED_HEADERS = ['air_temp', 'process_temp',
     'rotational_speed', 'torque', 'tool', 'machinefailure']
 
 NUMERIC_HEADERS = ['air_temp', 'process_temp','rotational_speed', 'torque', 'tool']
 
-NON_NUMERIC_HEADERS = ['udi', 'productid', 'type', 'machinefailure']"""
+NON_NUMERIC_HEADERS = ['udi', 'productid', 'type', 'machinefailure']
+"""

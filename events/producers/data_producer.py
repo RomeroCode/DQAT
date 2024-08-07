@@ -82,12 +82,12 @@ def produce_data(file_path):
 
                 # Calculate time difference between events
                 if previous_timestamp:
-                    time_difference = ((current_timestamp - previous_timestamp).total_seconds())/100
+                    time_difference = ((current_timestamp - previous_timestamp).total_seconds())/10
                     # Adjust the waiting time
                     sleep_time = 0
                     while sleep_time < time_difference and not SHUTDOWN_REQUESTED:
-                        time.sleep(min(0.01, time_difference - sleep_time))
-                        sleep_time += 0.01
+                        time.sleep(min(0.1, time_difference - sleep_time))
+                        sleep_time += 0.1
 
                 if SHUTDOWN_REQUESTED:
                     # Send message to Kafka before stops
