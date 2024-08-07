@@ -1,8 +1,8 @@
-# QualityTool
+# Data Quality Assurance Tool
 
 ## Overview
 
-The "QualityTool" project is a comprehensive solution for data quality management and control in Internet of Things (IoT) environments. Specifically designed for applications like aquaculture, this repository introduces an event-driven software architecture, leveraging the Python programming language.
+The "Data Quality Assurance Tool" project is a comprehensive solution for data quality management and control in Internet of Things (IoT) environments. Specifically designed for applications like aquaculture, this repository introduces an event-driven software architecture, leveraging the Python programming language.
 
 ## Key Features
 
@@ -22,7 +22,7 @@ The "QualityTool" project is a comprehensive solution for data quality managemen
 
 ## Layers' Diagram
 
-![Layers' Diagram](https://github.com/RomeroCode/QualityTool/blob/main/diagrama.png)
+![Layers' Diagram](https://github.com/RomeroCode/QualityTool/blob/main/diagrama.svg)
 
 ## Usage Instructions
 
