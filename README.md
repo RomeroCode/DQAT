@@ -1,5 +1,7 @@
 # Data Quality Assurance Tool
 
+![Logo](https://github.com/RomeroCode/QualityTool/blob/main/DQAT.png)
+
 ## Overview
 
 The "Data Quality Assurance Tool" project is a comprehensive solution for data quality management and control in Internet of Things (IoT) environments. Specifically designed for applications like aquaculture, this repository introduces an event-driven software architecture, leveraging the Python programming language.
