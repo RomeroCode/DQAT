@@ -47,6 +47,20 @@ The dataset includes sensor readings for parameters such as temperature, turbidi
 
 This project was created during the Master's program in Information Engineering at the Federal University of ABC (UFABC). It represents a culmination of academic research and practical implementation, addressing challenges in data quality management within IoT environments.
 
+## 💬 Citation
+
+If DQAT has been useful to you, and you would like to cite it in a scientific publication, please refer to the paper published at SBrT 2024:
+
+```bibtex
+@inproceedings{romero2024dqat,
+  title={DQAT: An Online Machine Learning Framework for Real-Time Data Quality Assurance in IoT},
+  author={Romero, Marcos Lima and Suyama, Ricardo},
+  booktitle={XLII Brazilian Symposium on Telecommunications and Signal Processing (SBrT 2024)},
+  year={2024},
+  organization={SBrT}
+}
+```
+
 ## Contributions
 
 Feel free to contribute to this open-source project. Your contributions are valuable for further research, collaboration, and learning.
