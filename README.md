@@ -34,14 +34,15 @@ The "Data Quality Assurance Tool" project is a comprehensive solution for data q
 4. Monitor and review logs to ensure system integrity.
 
 ### Prerequisites
-- Python 3.x
+- Python ^3.8
 - Kafka broker running (localhost:9092)
+- InfluxDB
 
 ## Dataset
 The dataset used in this project was obtained from Kaggle: [Sensor-Based Aquaponics Fish Pond Datasets](https://www.kaggle.com/datasets/ogbuokiriblessing/sensor-based-aquaponics-fish-pond-datasets).
 
 ### Dataset Structure
-The dataset includes sensor readings for parameters such as temperature, turbidity, ammonia, nitrate, pH, dissolved oxygen (DO), and geographic coordinates. The data is stored in a CSV file located at `QualityTool/data/sensor_readings.csv`.
+The dataset includes sensor readings for parameters such as temperature, turbidity, ammonia, nitrate, pH, dissolved oxygen (DO), and geographic coordinates. The data is stored in a CSV file located at `QualityTool/data/`.
 
 ## Academic Origin
 
