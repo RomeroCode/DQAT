@@ -9,7 +9,7 @@ Click==7.0
 cloud-init==23.3.3
 colorama==0.4.3
 command-not-found==0.3
-configobj==5.0.6
+configobj==5.0.9
 constantly==15.1.0
 cryptography==42.0.4
 dbus-python==1.2.16
